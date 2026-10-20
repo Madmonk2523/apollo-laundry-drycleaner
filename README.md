@@ -46,3 +46,7 @@ The tests cover valid pickup and delivery requests, validation, date limits, esc
 ## Copy and motion
 
 The website uses **Everyday laundry** as the customer-facing service name. The hero cycles between laundry care, dry cleaning, and garment care, while the blue service strip scrolls through practical services. The headline stays static when reduced motion is preferred, and the full service description remains accessible to screen readers.
+
+## Copy cleanup
+
+Keep interface wording concise. Decorative scheduling labels and estimated form completion times were removed; required booking disclosures and pickup/delivery distinctions remain.
