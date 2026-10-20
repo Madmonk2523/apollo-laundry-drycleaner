@@ -1,20 +1,44 @@
 # Apollo Laundry Drycleaner
 
-Premium blue-and-white responsive website, animated interactive homepage, multi-step **pickup** and **delivery** request forms, accessible navigation and Vercel email endpoint.
+Responsive, accessible blue-and-white website for wash & fold, dry cleaning, pickup requests and delivery requests. The hero illustration and tasteful scroll motion are CSS-based.
 
-## Deploy
+## What visitors can do
 
-Import this repository into Vercel, set framework preset to Other, use the repository root, no build command. Every subsequent push to main redeploys the site.
+- Submit a pickup request for wash & fold, dry cleaning, or both. Optional estimate of the amount of laundry.
+- Request delivery of an existing Apollo order, with an optional order reference.
+- Choose an address, preferred date (within 180 days), and broad time window.
+- Specify email or phone-call follow-up, add special instructions, and review all details before submitting.
+- Receive a reference number only **after** the website email successfully reaches the email provider. A request is not a confirmed appointment.
 
-## Enable email forms
+On narrow screens, persistent request actions are shown at the bottom of the page and hidden while the form is open. The modal traps keyboard focus and respects reduced-motion preferences.
 
-Provide these environment variables in Vercel Project Settings:
+## Deployment
 
-- `RESEND_API_KEY`: API key from Resend
-- `APOLLO_REQUEST_EMAIL`: owner's inbox for new requests
-- `APOLLO_FROM_EMAIL`: sender address from verified domain, e.g. `Apollo Laundry <requests@yourdomain.com>`
-- `APOLLO_SEND_CUSTOMER_CONFIRMATION`: optional `true`
+Source repository: `Madmonk2523/apollo-laundry-drycleaner`. Vercel deploys automatically from `main` to the `apollo-laundry-drycleaner` project. No build command is required; `index.html` is at the root and the serverless handler is `api/request.js`.
 
-Redeploy and test both pickup/delivery forms. Forms do not confirm bookings; they only submit requests. Until email is configured, the endpoint returns 503 and the UI shows that requests aren't active.
+## Activate delivery of request emails
 
-Before public launch, confirm business address, service area, phone, pricing, and hours with the owner. No secret keys should ever be committed to this repository.
+Create a free Resend account and verify a sender domain. In Vercel's **Settings → Environment Variables**, add these as production secrets:
+
+- `RESEND_API_KEY`: API key for Resend.
+- `APOLLO_REQUEST_EMAIL`: real business inbox for incoming requests.
+- `APOLLO_FROM_EMAIL`: Resend-verified sender, e.g. `Apollo Laundry <requests@yourdomain.com>`.
+- `APOLLO_SEND_CUSTOMER_CONFIRMATION`: optional `true` to email an acknowledgment (not a booking confirmation) to the customer.
+
+Redeploy after adding secrets, then send a **test pickup** and a **test delivery** request and confirm both arrive with the correct preferred contact method, date, address, and notes. Until the required secrets are present, submissions return HTTP 503 with an honest error instead of showing a fake success. Do not paste credentials into GitHub or client-side source.
+
+## Before advertising the site
+
+- Verify business address, service coverage, opening hours, phone number, and pricing; **none is invented on the site**.
+- If the business needs same-day cutoff rules or ZIP-only serviceability, obtain the exact rules and enforce them server-side.
+- Determine whether deliveries can be requested for customers without an existing order (currently, delivery means an already cleaned order).
+- Test email deliverability, including replies and customer acknowledgment when enabled.
+- Confirm the owner can manage consent and customer details securely.
+
+## Tests
+
+```bash
+node --test tests/api.test.js
+```
+
+The tests cover valid pickup and delivery requests, validation, date limits, escaped customer content, bot honeypot, missing email configuration, and email-transport behavior. Browser interaction and mobile layout were also tested manually with Playwright (external test harness).
