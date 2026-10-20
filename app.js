@@ -23,6 +23,22 @@
   let sending = false;
 
   $('#year').textContent = String(new Date().getFullYear());
+  // Rotate the main service word without changing the headline for assistive technology.
+  const rotatingHeadline = $('#heroRotate');
+  if (rotatingHeadline && motionOK) {
+    const terms = ['Laundry care.', 'Dry cleaning.', 'Garment care.'];
+    let activeTerm = 0;
+    window.setInterval(() => {
+      if (document.hidden || backdrop.classList.contains('open')) return;
+      rotatingHeadline.classList.add('is-exiting');
+      window.setTimeout(() => {
+        activeTerm = (activeTerm + 1) % terms.length;
+        rotatingHeadline.textContent = terms[activeTerm];
+        rotatingHeadline.classList.remove('is-exiting');
+      }, 240);
+    }, 4200);
+  }
+
   function syncHeader() { header.classList.toggle('scrolled', scrollY > 25); }
   syncHeader();
   window.addEventListener('scroll', syncHeader, { passive: true });

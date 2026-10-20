@@ -1,10 +1,10 @@
 # Apollo Laundry Drycleaner
 
-Responsive, accessible blue-and-white website for wash & fold, dry cleaning, pickup requests and delivery requests. The hero illustration and tasteful scroll motion are CSS-based.
+Responsive, accessible blue-and-white website for everyday laundry, dry cleaning, pickup requests and delivery requests. The hero illustration and tasteful scroll motion are CSS-based.
 
 ## What visitors can do
 
-- Submit a pickup request for wash & fold, dry cleaning, or both. Optional estimate of the amount of laundry.
+- Submit a pickup request for everyday laundry, dry cleaning, or both. Optional estimate of the amount of laundry.
 - Request delivery of an existing Apollo order, with an optional order reference.
 - Choose an address, preferred date (within 180 days), and broad time window.
 - Specify email or phone-call follow-up, add special instructions, and review all details before submitting.
@@ -42,3 +42,7 @@ node --test tests/api.test.js
 ```
 
 The tests cover valid pickup and delivery requests, validation, date limits, escaped customer content, bot honeypot, missing email configuration, and email-transport behavior. Browser interaction and mobile layout were also tested manually with Playwright (external test harness).
+
+## Copy and motion
+
+The website uses **Everyday laundry** as the customer-facing service name. The hero cycles between laundry care, dry cleaning, and garment care, while the blue service strip scrolls through practical services. The headline stays static when reduced motion is preferred, and the full service description remains accessible to screen readers.

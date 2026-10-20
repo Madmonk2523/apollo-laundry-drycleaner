@@ -4,7 +4,7 @@
  */
 const { randomBytes } = require('node:crypto');
 
-const ALLOWED_SERVICES = new Set(['Wash & fold', 'Dry cleaning', 'Both wash & fold and dry cleaning', 'Not sure yet']);
+const ALLOWED_SERVICES = new Set(['Everyday laundry', 'Dry cleaning', 'Laundry and dry cleaning', 'Not sure yet']);
 const ALLOWED_WINDOWS = new Set(['Morning', 'Afternoon', 'Evening', 'Flexible']);
 const ALLOWED_QUANTITIES = new Set(['', '1 bag', '2 bags', '3+ bags', 'Individual garments']);
 const CONTACT_METHODS = new Set(['Email', 'Phone call']);

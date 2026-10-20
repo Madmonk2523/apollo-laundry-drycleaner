@@ -13,7 +13,7 @@ after(() => {
  for (const [key, value] of Object.entries(originalEnv)) value === undefined ? delete process.env[key] : process.env[key] = value;
 });
 const good = {
- requestType:'pickup', service:'Wash & fold', quantity:'1 bag', items:'Please use the back entrance',
+ requestType:'pickup', service:'Everyday laundry', quantity:'1 bag', items:'Please use the back entrance',
  orderNumber:'', address:'10 Example Lane', unit:'2A', city:'Sampletown', zip:'11747',
  requestedDate:new Date(Date.now()+14*86400000).toISOString().slice(0,10), timeWindow:'Afternoon', firstName:'Jamie', lastName:'Example',
  email:'jamie@example.com',phone:'6315550199',contactMethod:'Email',contactConsent:'on',website:''

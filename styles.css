@@ -82,3 +82,12 @@
   body:not(.modal-open) {padding-bottom:calc(70px + env(safe-area-inset-bottom));}
   body.modal-open .mobile-quick-actions {display:none;}
 }
+
+
+/* Apollo headline: restrained service rotation (the marquee is unchanged in behavior). */
+.hero-rotating-wrap { display:inline-block; vertical-align:baseline; white-space:nowrap; }
+.hero-rotating-text { display:inline-block; font-size:.88em; opacity:1; transform:translateY(0); transition:opacity .24s ease,transform .24s ease; }
+.hero-rotating-text.is-exiting { opacity:0; transform:translateY(-.12em); }
+@media(max-width:700px){.hero h1 .hero-rotating-text{font-size:.90em}}
+@media(max-width:390px){.hero h1 .hero-rotating-text{font-size:.83em}}
+@media(prefers-reduced-motion:reduce){.hero-rotating-text{transition:none!important}}
