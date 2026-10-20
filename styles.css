@@ -91,3 +91,10 @@
 @media(max-width:700px){.hero h1 .hero-rotating-text{font-size:.90em}}
 @media(max-width:390px){.hero h1 .hero-rotating-text{font-size:.83em}}
 @media(prefers-reduced-motion:reduce){.hero-rotating-text{transition:none!important}}
+
+/* Balanced spacing after removing redundant labels and descriptions. */
+.hero-bottom{justify-content:flex-end}
+.modal-intro h2{margin-top:0}
+.booking-heading{margin-bottom:38px}
+.process-left .button-white{margin-top:28px}
+@media(max-width:700px){.booking-heading{margin-bottom:28px}.process-left .button-white{margin-top:20px}}
