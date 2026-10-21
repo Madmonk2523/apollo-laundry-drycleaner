@@ -151,7 +151,7 @@
     $$('.progress-part', backdrop).forEach((el, index) => {
       el.classList.toggle('active', index === step);
       el.classList.toggle('complete', index < step);
-      $('span', el).textContent = index < step ? '✓' : String(index + 1);
+      $('span', el).textContent = String(index + 1);
     });
     $('#stepStatus').textContent = `Step ${step+1} of 3: ${['Service or order','Address and time','Contact and review'][step]}`;
     back.hidden = step === 0;
@@ -283,7 +283,7 @@
       clearTimeout(timeout);
       sending = false;
       submit.disabled = false;
-      submit.innerHTML = 'Send request <span aria-hidden="true">↗</span>';
+      submit.textContent = 'Send request';
     }
   });
 })();
