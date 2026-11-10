@@ -24,6 +24,6 @@ NODE_PATH=/tmp/apollo-qa/node_modules node qa/dom-check.cjs
 
 - Desktop/mobile browser visual QA: the browser could not connect to the local preview server. The Vercel branch preview requires authentication. No protection settings were changed or wider-access preview links created.
 - Real email deliverability: requires the production email configuration and a separately authorized live test.
-- Exact Google business identity, review quotations and business-owned photos: see CONTENT-SOURCES.md.
+- Google identity and review quotations verified November 10, 2026. Photo republication remains pending rights: see CONTENT-SOURCES.md.
 
-Keep this refresh on its review branch until browser visual QA is complete. Do not describe the real-photo/review request as finished.
+The initial refresh was promoted to production after explicit approval. Do not describe on-page photography as finished.

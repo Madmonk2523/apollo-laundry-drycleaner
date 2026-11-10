@@ -29,7 +29,7 @@ Redeploy after adding secrets, then send a **test pickup** and a **test delivery
 
 ## Before advertising the site
 
-- Verify business address, service coverage, opening hours, phone number, and pricing; **none is invented on the site**.
+- Business address, phone, hours and Greenpoint pickup coverage were verified against the supplied Google listing. Confirm any changes and current garment pricing with the business.
 - If the business needs same-day cutoff rules or ZIP-only serviceability, obtain the exact rules and enforce them server-side.
 - Determine whether deliveries can be requested for customers without an existing order (currently, delivery means an already cleaned order).
 - Test email deliverability, including replies and customer acknowledgment when enabled.
@@ -45,7 +45,7 @@ The tests cover valid pickup and delivery requests, validation, date limits, esc
 
 ## Verified content
 
-The public page links to the exact supplied Google listing for photos and reviews. No on-page photographs, review quotes, rating totals, address or hours were added without an exact business match and source verification. See CONTENT-SOURCES.md for the remaining research and photography gaps.
+The supplied Google listing was verified on November 10, 2026. The page includes its address, phone, hours, local pickup service, rating and three short attributed review excerpts. Google photographs remain linked at their source because the available images are customer-contributed and reuse permission has not been established. See CONTENT-SOURCES.md.
 
 ## Copy and motion
 

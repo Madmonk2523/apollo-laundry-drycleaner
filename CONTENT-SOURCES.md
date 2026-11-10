@@ -1,22 +1,36 @@
 # Content verification, 10 November 2026
 
-The website links to the exact Google listing supplied for this update:
-https://share.google/LdoeEbqq3bSOVXh8D
+## Exact business match
 
-The short link resolved to an Apollo Laundry search with knowledge ID `/g/11xt_0992x`, but Google required human verification before the business panel could be read. No challenge was bypassed.
+The supplied URL https://share.google/LdoeEbqq3bSOVXh8D resolves to the Google knowledge panel `/g/11xt_0992x`. Following an authorized human-verification check, the panel and full reviews were read directly in the browser on November 10, 2026.
 
-## Deliberately not published
+The panel identifies Apollo Laundry, 137 Franklin St, Brooklyn, NY 11222; telephone (929) 264-6070. The owner's business description lists laundry machines, everyday laundry, dry cleaning and free pickup/drop-off in Greenpoint. The door photograph confirms daily hours of 7 am to 10 pm, address and phone. Do not infer garment prices or a working cafe from older reviews.
 
-Independent directory and local-news results describe an Apollo Laundry at 137 Franklin Street, Brooklyn. They were not conclusively matched to the supplied knowledge ID or the existing website, so the redesign does not assert that address, phone number, opening hours, or rating.
+The Google panel showed 4.8 out of 5 from 12 reviews. The site labels this as a dated snapshot, not a live feed. Three short excerpts (21 words total) were checked against the full reviews and retain their exact wording. These selected positive excerpts are not a summary of all feedback. The full listing also contains critical feedback; the site links to all reviews.
 
-Candidate sources for subsequent verification:
+Review authors and Google contributor IDs:
+- Christy Illius: 112007456339751400326, displayed 9 months ago.
+- Brynn Moynihan: 103414911022412941694, displayed 4 months ago.
+- Madeline Landon: 116385402529346067046, displayed 3 months ago.
+
+Review source: https://www.google.com/maps/place/Apollo+Laundry/data=!4m2!3m1!1s0x0:0xaae1074e4314063c
+Google place identifier: ChIJeR9JFABZwokRPAYUQ04H4ao.
+
+## Photographs
+
+The exact listing's photo gallery was inspected. It contains three photographs plus Street View:
+- Washer aisle/interior: Albert Diaz, displayed a year ago.
+- Door and opening hours: Andrew Migliori, displayed 11 months ago.
+- Service counter: Albert Diaz, displayed a year ago.
+
+These are real photographs of the confirmed business, but they are contributor photographs, not marked as business-owned. Google displays “Images may be subject to copyright.” No license or permission to republish them on this commercial website was established. They have not been copied, hotlinked or represented as owned by Apollo. The site's Google link opens the originals at their source. On-page photography remains pending authorized assets or permission from the rights holders. No stock or AI-generated images were substituted.
+
+Independent corroboration:
 - https://laundromatnear.me/place/apollo-laundry-brooklyn-ny-11222
 - https://greenpointers.com/2025/05/21/apollo-laundry-and-cafe-opens-on-franklin-street/
 
-No named review excerpts were independently verified. No testimonials were invented, and no unattributed excerpts were recast as named customer reviews. The Google link lets visitors see reviews at their source.
-
-No owner-uploaded Google photos or photo reuse rights were verified. The storefront image found in local reporting is credited to Greenpointers and has not been copied into this repository or displayed on the website. No stock or AI-generated photos have been substituted. Real on-page photography remains unfinished pending verified business-owned or authorized assets.
+The Greenpointers storefront photograph is credited to Greenpointers, and likewise was not copied.
 
 ## Preserved behavior
 
-Existing everyday laundry, dry-cleaning, pickup and delivery-request flows remain. A request is not a confirmed appointment. Email delivery still depends on the production configuration described in README.md. No live customer request was submitted during testing.
+Existing everyday laundry, dry-cleaning, pickup and delivery-request flows remain. A request is not a confirmed appointment. Email delivery still depends on production configuration described in README.md. No live customer request was submitted during testing.

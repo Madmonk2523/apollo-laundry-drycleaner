@@ -22,8 +22,15 @@ test('Google links preserve supplied destination with safe new tabs', () => {
  assert.ok(links.length >= 2);
  links.forEach(([a]) => { assert.match(a, /rel="noopener noreferrer"/); assert.match(a, /target="_blank"/); });
 });
-test('no invented ratings, testimonials, photos or unsupported local claims', () => {
- assert.doesNotMatch(html, /aggregateRating|reviewRating|137 Franklin|929.264.6070|4\.8|12 reviews/);
+test('verified Google details are present without fabricated structured ratings or images', () => {
+ assert.match(html, /137 Franklin/);
+ assert.match(html, /tel:\+19292646070/);
+ assert.match(html, /12 Google reviews/);
+ assert.match(html, /Christy Illius/);
+ assert.match(html, /Brynn Moynihan/);
+ assert.match(html, /Madeline Landon/);
+ assert.match(html, /Selected excerpts/);
+ assert.doesNotMatch(html, /aggregateRating|reviewRating/);
  assert.doesNotMatch(html, /<img\b/);
  assert.doesNotMatch(html, /—/);
 });
