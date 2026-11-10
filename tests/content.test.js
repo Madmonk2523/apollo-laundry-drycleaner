@@ -19,13 +19,9 @@ test('pickup form options match API supported values', () => {
   }
 });
 
-test('rotating headline preserves accessible text and respects reduced-motion preference', () => {
-  const html = read('index.html');
-  const js = read('app.js');
-  const css = read('styles.css');
-  assert.match(html, /id="heroRotate"[^>]+aria-hidden="true"/);
-  assert.match(html, /<span class="sr-only">Laundry and dry cleaning\.<\/span>/);
-  assert.match(js, /if \(rotatingHeadline && motionOK\)/);
-  for(const term of ['Laundry care.','Dry cleaning.','Garment care.'])assert.ok(js.includes(term));
-  assert.match(css, /hero-rotating-text\.is-exiting/);
+test('static headline is visible and no automatic headline timer runs', () => {
+  const html = read('index.html'); const js = read('app.js');
+  assert.match(html, /<h1 id="heroTitle">Laundry, taken/);
+  assert.doesNotMatch(html, /id="heroRotate"/);
+  assert.doesNotMatch(js, /window.setInterval/);
 });
