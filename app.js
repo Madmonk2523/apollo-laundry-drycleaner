@@ -143,7 +143,8 @@
     submit.classList.toggle('hidden', step !== 2);
     if (step === 2) renderReview();
     clearErrors();
-    dialog.scrollTo({top:0,behavior:motionOK ? 'smooth' : 'auto'});
+    dialog.scrollTo({top:0,behavior:'auto'});
+    content.scrollTo({top:0,behavior:'auto'});
     if (focusTitle) focusStepTitle();
   }
 
@@ -221,7 +222,10 @@
   });
   $$('input,select,textarea', form).forEach(input => {
     input.addEventListener('input', () => { if (!formError.hidden) clearErrors(); });
-    input.addEventListener('change', () => { if (!formError.hidden) clearErrors(); });
+    input.addEventListener('change', () => {
+      if (!formError.hidden) clearErrors();
+      if (step === 2) renderReview();
+    });
   });
 
   form.addEventListener('submit', async event => {

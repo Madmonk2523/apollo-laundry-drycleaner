@@ -1,0 +1,29 @@
+# Verification record
+
+10 November 2026.
+
+## Passed
+
+- `node --check app.js`
+- `node --test tests/*.test.js`: 22 tests.
+- `git diff --check`
+- HTML nesting and duplicate-ID checks.
+- Independent static review of responsive CSS and existing request code.
+- Simulated DOM interactions with jsdom: pickup success, delivery success without an order reference, validation/focus, Back, close/reopen reset, Escape, menu dismissal, live contact summary, and unavailable-email-service error with retry enabled.
+
+The DOM harness uses mocked network responses and test data. It does not send requests to Apollo or the email provider. It is not a real-browser layout test.
+
+To run it with an isolated development dependency:
+
+```sh
+npm install --prefix /tmp/apollo-qa --cache /tmp/apollo-npm-cache --no-audit --no-fund jsdom
+NODE_PATH=/tmp/apollo-qa/node_modules node qa/dom-check.cjs
+```
+
+## Not completed
+
+- Desktop/mobile browser visual QA: the browser could not connect to the local preview server. The Vercel branch preview requires authentication. No protection settings were changed or wider-access preview links created.
+- Real email deliverability: requires the production email configuration and a separately authorized live test.
+- Exact Google business identity, review quotations and business-owned photos: see CONTENT-SOURCES.md.
+
+Keep this refresh on its review branch until browser visual QA is complete. Do not describe the real-photo/review request as finished.
