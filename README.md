@@ -45,7 +45,7 @@ The tests cover valid pickup and delivery requests, validation, date limits, esc
 
 ## Verified content
 
-The supplied Google listing was verified on November 10, 2026. The page includes its address, phone, hours, local pickup service, three short attributed review excerpts (no numerical rating). Google photographs remain linked at their source because the available images are customer-contributed and reuse permission has not been established. See CONTENT-SOURCES.md.
+The supplied Google listing was verified on November 10, 2026. The page includes its address, phone, hours, local pickup service, two short complete attributed reviews in a manual carousel (no numerical rating). Google photographs remain linked at their source because the available images are customer-contributed and reuse permission has not been established. See CONTENT-SOURCES.md.
 
 ## Copy and motion
 

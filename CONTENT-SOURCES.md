@@ -38,3 +38,7 @@ Existing everyday laundry, dry-cleaning, pickup and delivery-request flows remai
 ## Visual restoration
 
 The original animated design from commit e9268fc was restored on November 11, 2026, including the machine, rotating headline, ticker and original illustrations. Verified business details and the three review excerpts remain in an added section. Request-flow fixes remain.
+
+## Complete reviews and contact additions, November 11, 2026
+
+Replaced the three excerpts with two short complete reviews, preserving all wording and punctuation: Madeline Landon (17 words) and Albert Diaz (8 words). These total 25 quoted words from Google. Full text was verified in the Google review dialog during the November 10 research. Albert’s older cafe comment is explicitly historical; the site does not claim the cafe is open or forthcoming now. Longer complete reviews were not reproduced. Added manual carousel controls, repeated click-to-call links for the verified phone, and Google’s public embedded map for the verified street address.

@@ -23,6 +23,22 @@
   let sending = false;
 
   $('#year').textContent = String(new Date().getFullYear());
+  // Manual review navigation: no autoplay, animation, or focus changes.
+  const reviewSlides = $$('.review-slide');
+  const carouselControls = $('.carousel-controls');
+  if (reviewSlides.length && carouselControls) {
+    let reviewIndex = 0;
+    const showReview = index => {
+      reviewIndex = (index + reviewSlides.length) % reviewSlides.length;
+      reviewSlides.forEach((slide, i) => { slide.hidden = i !== reviewIndex; });
+      $('#reviewStatus').textContent = `Review ${reviewIndex + 1} of ${reviewSlides.length}`;
+    };
+    $('#reviewPrevious').addEventListener('click', () => showReview(reviewIndex - 1));
+    $('#reviewNext').addEventListener('click', () => showReview(reviewIndex + 1));
+    carouselControls.hidden = false;
+    showReview(0);
+  }
+
   // Rotate the main service word without changing the headline for assistive technology.
   const rotatingHeadline = $('#heroRotate');
   if (rotatingHeadline && motionOK) {
