@@ -45,3 +45,8 @@ test('restored animation and responsive rules remain intact', () => {
  assert.match(css, /review-grid-public\{grid-template-columns:1fr/);
  assert.doesNotMatch(css, /Editorial refresh/);
 });
+
+test('review captions omit relative dates and verification timestamps', () => {
+ assert.doesNotMatch(html, /displayed .*ago|when checked|November 11, 2026/);
+ assert.equal((html.match(/<span>Google review<\/span>/g) || []).length, 5);
+});
