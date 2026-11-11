@@ -28,7 +28,7 @@ test('verified Google details are present without fabricated structured ratings 
  assert.doesNotMatch(html, /4\.8|rating-summary|12 Google reviews|aggregateRating|reviewRating/);
  assert.match(html, /Albert Diaz/);
  assert.match(html, /Madeline Landon/);
- assert.match(html, /Two complete customer reviews/);
+ assert.match(html, /Five selected five-star reviews/);
  assert.match(html, /class="machine-drum"/);
  assert.match(html, /class="ticker-track"/);
  assert.doesNotMatch(html, /aggregateRating|reviewRating/);

@@ -195,3 +195,5 @@
 @media(max-width:700px){.review-carousel{padding:25px 22px;border-radius:18px}.review-slide{min-height:275px}.review-slide blockquote{font-size:24px}.carousel-controls{gap:8px}.carousel-controls button{padding:10px 16px}.location-heading{flex-direction:column;align-items:start;gap:24px}.location-actions{align-items:start}.location-map{height:320px;border-radius:18px}}
 
 .nav-actions{gap:18px}
+
+.review-slide .review-score{font-size:12px;font-weight:700;color:#2455b0;margin:0 0 20px;letter-spacing:.02em}.review-slide blockquote{overflow-wrap:anywhere}

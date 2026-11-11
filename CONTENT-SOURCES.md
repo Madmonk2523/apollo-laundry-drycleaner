@@ -42,3 +42,7 @@ The original animated design from commit e9268fc was restored on November 11, 20
 ## Complete reviews and contact additions, November 11, 2026
 
 Replaced the three excerpts with two short complete reviews, preserving all wording and punctuation: Madeline Landon (17 words) and Albert Diaz (8 words). These total 25 quoted words from Google. Full text was verified in the Google review dialog during the November 10 research. Albert’s older cafe comment is explicitly historical; the site does not claim the cafe is open or forthcoming now. Longer complete reviews were not reproduced. Added manual carousel controls, repeated click-to-call links for the verified phone, and Google’s public embedded map for the verified street address.
+
+## Approved full-review expansion, November 11, 2026
+
+Following explicit confirmation that reviewer reuse was approved, added Christy Illius, Kamil Pruszko and Allan Sachs-Ambia to the existing Madeline Landon and Albert Diaz reviews. All five complete texts were rechecked directly in the Google review dialog. Allan's Read more control was expanded before copying. Five-star ratings were verified visually for Allan, Kamil, Christy and Albert; Madeline's rating was explicitly labeled five out of five in the Google knowledge panel. Selected reviews are labeled as such and link to the full listing. No aggregate rating is shown. The historic cafe comment disclaimer remains.
