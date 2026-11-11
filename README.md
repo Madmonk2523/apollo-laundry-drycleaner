@@ -1,6 +1,6 @@
 # Apollo Laundry Drycleaner
 
-Responsive, accessible blue-and-white website for everyday laundry, dry cleaning, pickup requests and delivery requests. The design uses blue-and-white typography and a static, accessible headline.
+Responsive, accessible blue-and-white website for everyday laundry, dry cleaning, pickup requests and delivery requests. The original design includes an animated washing machine, rotating service headline and moving ticker, with reduced-motion support.
 
 ## What visitors can do
 
@@ -45,7 +45,7 @@ The tests cover valid pickup and delivery requests, validation, date limits, esc
 
 ## Verified content
 
-The supplied Google listing was verified on November 10, 2026. The page includes its address, phone, hours, local pickup service, rating and three short attributed review excerpts. Google photographs remain linked at their source because the available images are customer-contributed and reuse permission has not been established. See CONTENT-SOURCES.md.
+The supplied Google listing was verified on November 10, 2026. The page includes its address, phone, hours, local pickup service, three short attributed review excerpts (no numerical rating). Google photographs remain linked at their source because the available images are customer-contributed and reuse permission has not been established. See CONTENT-SOURCES.md.
 
 ## Copy and motion
 

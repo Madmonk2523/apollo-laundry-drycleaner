@@ -25,12 +25,24 @@ test('Google links preserve supplied destination with safe new tabs', () => {
 test('verified Google details are present without fabricated structured ratings or images', () => {
  assert.match(html, /137 Franklin/);
  assert.match(html, /tel:\+19292646070/);
- assert.match(html, /12 Google reviews/);
+ assert.doesNotMatch(html, /4\.8|rating-summary|12 Google reviews|aggregateRating|reviewRating/);
  assert.match(html, /Christy Illius/);
  assert.match(html, /Brynn Moynihan/);
  assert.match(html, /Madeline Landon/);
- assert.match(html, /Selected excerpts/);
+ assert.match(html, /Selected Google review excerpts/);
+ assert.match(html, /class="machine-drum"/);
+ assert.match(html, /class="ticker-track"/);
  assert.doesNotMatch(html, /aggregateRating|reviewRating/);
  assert.doesNotMatch(html, /<img\b/);
  assert.doesNotMatch(html, /—/);
+});
+
+test('restored animation and responsive rules remain intact', () => {
+ const css = fs.readFileSync(path.join(__dirname, '../styles.css'), 'utf8');
+ for (const name of ['machineFloat','drumRotate','ticker']) assert.ok(css.includes('@keyframes '+name));
+ assert.match(css, /prefers-reduced-motion:reduce/);
+ assert.match(css, /animation-duration:\.01ms!important/);
+ assert.match(css, /@media\(max-width:700px\)/);
+ assert.match(css, /review-grid-public\{grid-template-columns:1fr/);
+ assert.doesNotMatch(css, /Editorial refresh/);
 });

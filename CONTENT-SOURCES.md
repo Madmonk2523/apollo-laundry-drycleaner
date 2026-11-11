@@ -6,7 +6,7 @@ The supplied URL https://share.google/LdoeEbqq3bSOVXh8D resolves to the Google k
 
 The panel identifies Apollo Laundry, 137 Franklin St, Brooklyn, NY 11222; telephone (929) 264-6070. The owner's business description lists laundry machines, everyday laundry, dry cleaning and free pickup/drop-off in Greenpoint. The door photograph confirms daily hours of 7 am to 10 pm, address and phone. Do not infer garment prices or a working cafe from older reviews.
 
-The Google panel showed 4.8 out of 5 from 12 reviews. The site labels this as a dated snapshot, not a live feed. Three short excerpts (21 words total) were checked against the full reviews and retain their exact wording. These selected positive excerpts are not a summary of all feedback. The full listing also contains critical feedback; the site links to all reviews.
+The numerical rating is deliberately omitted from the website at the user’s request. Three short excerpts (21 words total) were checked against the full reviews and retain their exact wording. These selected positive excerpts are not a summary of all feedback. The full listing also contains critical feedback; the site links to all reviews.
 
 Review authors and Google contributor IDs:
 - Christy Illius: 112007456339751400326, displayed 9 months ago.
@@ -34,3 +34,7 @@ The Greenpointers storefront photograph is credited to Greenpointers, and likewi
 ## Preserved behavior
 
 Existing everyday laundry, dry-cleaning, pickup and delivery-request flows remain. A request is not a confirmed appointment. Email delivery still depends on production configuration described in README.md. No live customer request was submitted during testing.
+
+## Visual restoration
+
+The original animated design from commit e9268fc was restored on November 11, 2026, including the machine, rotating headline, ticker and original illustrations. Verified business details and the three review excerpts remain in an added section. Request-flow fixes remain.
