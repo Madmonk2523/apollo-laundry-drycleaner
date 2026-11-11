@@ -27,3 +27,7 @@ NODE_PATH=/tmp/apollo-qa/node_modules node qa/dom-check.cjs
 - Google identity and review quotations verified November 10, 2026. Photo republication remains pending rights: see CONTENT-SOURCES.md.
 
 The initial refresh was promoted to production after explicit approval. Do not describe on-page photography as finished.
+
+## Original-design restoration, November 11, 2026
+
+Restored pre-redesign machine animation, rotating headline, ticker, illustrations and visual styling. Preserved verified details and three excerpts, removed rating and review count. 23 tests pass plus mocked DOM request checks. Production desktop screenshot confirmed original hero, and computed animations confirmed machineFloat (5s), drumRotate (12s), ticker (34s). Reduced-motion guards and mobile breakpoints checked by source tests; full mobile/reduced-motion browser emulation was unavailable in the browser API. Corrected pre-existing percentage-grid overflow while preserving visual layout.
