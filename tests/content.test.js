@@ -30,3 +30,15 @@ test('rotating headline preserves accessible text and respects reduced-motion pr
   for(const term of ['Laundry care.','Dry cleaning.','Garment care.'])assert.ok(js.includes(term));
   assert.match(css, /hero-rotating-text\.is-exiting/);
 });
+
+test('request form asks for required email and phone without retired questions', () => {
+ const html = read('index.html');
+ const js = read('app.js');
+ assert.doesNotMatch(html, /name="(?:quantity|contactMethod)"|HOW MUCH LAUNDRY|HOW SHOULD WE CONTACT YOU/i);
+ assert.doesNotMatch(js, /'quantity'|'contactMethod'/);
+ assert.match(html, /id="email"[^>]*type="email"[^>]*aria-describedby="replyByEmail"[^>]* required/);
+ assert.match(html, /id="phone"[^>]*type="tel"[^>]* required/);
+ const details = html.split('data-step="1"')[1];
+ assert.ok(details.indexOf('tel:+19292646070') < details.indexOf('id="firstName"'));
+ assert.match(details, /follow up by email/);
+});

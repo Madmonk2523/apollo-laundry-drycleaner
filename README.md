@@ -4,10 +4,10 @@ Responsive black, white, and stainless-steel website for everyday laundry, dry c
 
 ## What visitors can do
 
-- Submit a pickup request for Laundry, Dry cleaning, or both. Optional estimate of the amount of laundry.
+- Submit a pickup request for Laundry, Dry cleaning, or both.
 - Request delivery of an existing Apollo order, with an optional order reference.
 - Check a street address first. For a verified address in range, enter a preferred date (within 180 days), broad time window and contact details.
-- Specify email or phone-call follow-up, add special instructions, and review all details before submitting.
+- Provide an email address and phone number, add special instructions, and review the request. Apollo follows up by email.
 - Receive a reference number only **after** the website email successfully reaches the email provider. A request is not a confirmed appointment.
 
 On narrow screens, persistent request actions are shown at the bottom of the page and hidden while the form is open. The modal traps keyboard focus and respects reduced-motion preferences.
@@ -25,7 +25,7 @@ Create a free Resend account and verify a sender domain. In Vercel's **Settings 
 - `APOLLO_FROM_EMAIL`: Resend-verified sender, e.g. `Apollo Laundry <requests@yourdomain.com>`.
 - `APOLLO_SEND_CUSTOMER_CONFIRMATION`: optional `true` to email an acknowledgment (not a booking confirmation) to the customer.
 
-Redeploy after adding secrets, then, with the owner’s approval, send a **test pickup** and **test delivery** request and confirm both arrive with the correct preferred contact method, date, address, and notes. Until the required secrets are present, submissions return HTTP 503 with an honest error instead of showing a fake success. Do not paste credentials into GitHub or client-side source.
+Redeploy after adding secrets, then, with the owner’s approval, send a **test pickup** and **test delivery** request and confirm both arrive with the correct customer email (also used as Reply-To), phone, date, address, and notes. Until the required secrets are present, submissions return HTTP 503 with an honest error instead of showing a fake success. Do not paste credentials into GitHub or client-side source. The form includes a tap-to-call fallback before collecting personal details and if online delivery is unavailable.
 
 ## Before advertising the site
 

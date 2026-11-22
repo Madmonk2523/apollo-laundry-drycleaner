@@ -75,7 +75,6 @@ async function run() {
       await page.locator('#lastName').fill('Customer');
       await page.locator('#email').fill('test@example.invalid');
       await page.locator('#phone').fill('2025550199');
-      await page.locator('#contactMethod').selectOption('Email');
       await page.locator('#contactConsent').check();
       await page.getByRole('button',{name:'Send request'}).click();
       await page.getByText('LOCAL-QA').waitFor();

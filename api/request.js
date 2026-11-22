@@ -7,8 +7,6 @@ const { directory, OUTSIDE, UNAVAILABLE } = require('../lib/service-area');
 
 const ALLOWED_SERVICES = new Set(['Laundry', 'Dry cleaning', 'Laundry and dry cleaning']);
 const ALLOWED_WINDOWS = new Set(['Morning', 'Afternoon', 'Evening', 'Flexible']);
-const ALLOWED_QUANTITIES = new Set(['', '1 bag', '2 bags', '3+ bags', 'Individual garments']);
-const CONTACT_METHODS = new Set(['Email', 'Phone call']);
 const getText = (v, max = 200) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 const escapeHtml = (v) => String(v).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 const isEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 180;
@@ -24,7 +22,6 @@ function dataFrom(body) {
   return {
     requestType: getText(body.requestType, 20),
     service: getText(body.service, 100),
-    quantity: getText(body.quantity, 40),
     orderNumber: getText(body.orderNumber, 80),
     items: getText(body.items, 1200),
     addressId: getText(body.addressId, 20),
@@ -38,7 +35,6 @@ function dataFrom(body) {
     lastName: getText(body.lastName, 65),
     email: getText(body.email, 180),
     phone: getText(body.phone, 30),
-    contactMethod: getText(body.contactMethod, 30),
     contactConsent: getText(body.contactConsent, 12),
     website: getText(body.website, 500)
   };
@@ -48,7 +44,6 @@ function validationError(d) {
   if (d.website) return 'spam';
   if (!['pickup','delivery'].includes(d.requestType)) return 'Choose pickup or delivery.';
   if (d.requestType === 'pickup' && !ALLOWED_SERVICES.has(d.service)) return 'Select a valid service.';
-  if (d.requestType === 'pickup' && !ALLOWED_QUANTITIES.has(d.quantity)) return 'Select a valid laundry amount.';
   if (!isDate(d.requestedDate)) return 'Select a valid preferred date.';
   // Allow one day of time-zone overlap around midnight, but reject old or impractically distant dates.
   const today = new Date();
@@ -59,7 +54,6 @@ function validationError(d) {
   if (!d.firstName || !d.lastName) return 'Enter your first and last name.';
   if (!isEmail(d.email)) return 'Enter a valid email address.';
   if (!validPhone(d.phone)) return 'Enter a valid phone number.';
-  if (!CONTACT_METHODS.has(d.contactMethod)) return 'Select how you prefer to be contacted.';
   if (d.contactConsent !== 'on' && d.contactConsent !== 'true') return 'You must agree to be contacted about your request.';
   return null;
 }
@@ -68,14 +62,13 @@ function emailMarkup(d, reference) {
   const rows = [
     ['Request type', d.requestType === 'pickup' ? 'Pickup' : 'Delivery'],
     [d.requestType === 'pickup' ? 'Service' : 'Order reference', d.requestType === 'pickup' ? d.service : (d.orderNumber || 'Not supplied')],
-    ...(d.requestType === 'pickup' ? [['Estimated amount', d.quantity || 'Not specified']] : []),
     ['Customer', `${d.firstName} ${d.lastName}`],
-    ['Email', d.email],['Phone', d.phone],['Preferred contact', d.contactMethod],
+    ['Email', d.email],['Phone', d.phone],
     ['Address', `${d.address}${d.unit ? ', ' + d.unit : ''}, ${d.city}, NY ${d.zip}`],
     ['Preferred date', d.requestedDate],['Preferred window', d.timeWindow],
     ['Notes', d.items || 'None provided']
   ];
-  return `<div style="background:#f4f4f4;padding:32px;font-family:Arial,sans-serif;color:#343434"><div style="max-width:650px;margin:auto;background:#fff;border-radius:18px;overflow:hidden"><div style="background:#575757;color:#fff;padding:28px 33px"><div style="letter-spacing:.17em;font-size:13px;font-weight:bold">✳ APOLLO LAUNDRY</div><h1 style="font-size:24px;margin:16px 0 5px">New ${escapeHtml(d.requestType)} request</h1><div style="font-size:13px;opacity:.85">Reference ${escapeHtml(reference)} · Not yet confirmed</div></div><div style="padding:24px 33px"><p style="font-size:14px;line-height:1.6">A customer has submitted a new request. Contact them to confirm availability, timing, and pricing before scheduling.</p><table style="width:100%;border-collapse:collapse">${rows.map(([label,value]) => `<tr><td style="font-size:12px;font-weight:bold;color:#7b7b7b;padding:12px 8px 12px 0;border-bottom:1px solid #ececec;vertical-align:top;width:35%">${escapeHtml(label)}</td><td style="font-size:13px;line-height:1.5;padding:12px 0;border-bottom:1px solid #ececec;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`).join('')}</table><p style="font-size:11px;color:#9d9d9d;margin-top:24px">Sent by the Apollo website request form.</p></div></div></div>`;
+  return `<div style="background:#f4f4f4;padding:32px;font-family:Arial,sans-serif;color:#343434"><div style="max-width:650px;margin:auto;background:#fff;border-radius:18px;overflow:hidden"><div style="background:#575757;color:#fff;padding:28px 33px"><div style="letter-spacing:.17em;font-size:13px;font-weight:bold">✳ APOLLO LAUNDRY</div><h1 style="font-size:24px;margin:16px 0 5px">New ${escapeHtml(d.requestType)} request</h1><div style="font-size:13px;opacity:.85">Reference ${escapeHtml(reference)} · Not yet confirmed</div></div><div style="padding:24px 33px"><p style="font-size:14px;line-height:1.6">A customer has submitted a new request. Reply to this email to confirm availability, timing, and pricing before scheduling.</p><table style="width:100%;border-collapse:collapse">${rows.map(([label,value]) => `<tr><td style="font-size:12px;font-weight:bold;color:#7b7b7b;padding:12px 8px 12px 0;border-bottom:1px solid #ececec;vertical-align:top;width:35%">${escapeHtml(label)}</td><td style="font-size:13px;line-height:1.5;padding:12px 0;border-bottom:1px solid #ececec;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`).join('')}</table><p style="font-size:11px;color:#9d9d9d;margin-top:24px">Sent by the Apollo website request form.</p></div></div></div>`;
 }
 
 async function sendWithResend(key, from, to, subject, html, replyTo) {
@@ -125,7 +118,7 @@ module.exports = async function handler(req, res) {
     await sendWithResend(key, sender, inbox, `[Apollo] New ${d.requestType} request · ${reference}`, emailMarkup(d, reference), d.email);
     // An optional acknowledgment, deliberately not a booking confirmation.
     if (process.env.APOLLO_SEND_CUSTOMER_CONFIRMATION === 'true') {
-      const html = `<div style="font-family:Arial,sans-serif;max-width:520px;color:#343434;line-height:1.7"><h2 style="color:#585858">Apollo received your request.</h2><p>Hi ${escapeHtml(d.firstName)},</p><p>Thanks for reaching out to Apollo Laundry Drycleaner. Your <b>${escapeHtml(d.requestType)}</b> request (${escapeHtml(reference)}) has been received.</p><p><b>Your request is not a confirmed appointment yet.</b> Our team will follow up to confirm the time, service area, and any pricing. Please do not leave laundry outside until the appointment is confirmed.</p><p>— Apollo Laundry Drycleaner</p></div>`;
+      const html = `<div style="font-family:Arial,sans-serif;max-width:520px;color:#343434;line-height:1.7"><h2 style="color:#585858">Apollo received your request.</h2><p>Hi ${escapeHtml(d.firstName)},</p><p>Thanks for reaching out to Apollo Laundry Drycleaner. Your <b>${escapeHtml(d.requestType)}</b> request (${escapeHtml(reference)}) has been received.</p><p><b>Your request is not a confirmed appointment yet.</b> Our team will follow up by email to confirm the time, service area, and any pricing. Please do not leave laundry outside until the appointment is confirmed.</p><p>— Apollo Laundry Drycleaner</p></div>`;
       try { await sendWithResend(key, sender, d.email, `Apollo request received · ${reference}`, html); } catch (_) { /* Owner email succeeded; customer acknowledgment is optional. */ }
     }
     return res.status(200).json({success:true, reference});

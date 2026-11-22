@@ -50,7 +50,6 @@ const fillDetails = () => {
   fill('#lastName','User');
   fill('#email','test@example.invalid');
   fill('#phone','2025550101');
-  fill('#contactMethod','Email');
   $('#contactConsent').checked = true;
 };
 async function typedSearch(query) {
@@ -88,12 +87,18 @@ async function selectWithPointer(query,index=0) {
   click('#formSubmit');
   assert.match($('#formError').textContent,/cleaning service/);
   fill('#service','Laundry'); fillDetails();
-  assert.match($('#requestSummary').textContent,/ContactEmail/);
+  assert.match($('#requestSummary').textContent,/Follow-up emailtest@example\.invalid/);
+  assert.equal($('#quantity'),null);
+  assert.equal($('#contactMethod'),null);
+  assert.match($('#replyByEmail').textContent,/follow up by email/);
+  assert.ok($('.form-step[data-step="1"] .address-fallback a').href.startsWith('tel:'));
   click('#formSubmit'); await delay();
   assert.equal(requests.length,1);
   assert.equal(requests[0].addressId,'1232477');
   assert.equal(requests[0].service,'Laundry');
   assert.equal(requests[0].unit,'2B');
+  assert.equal('quantity' in requests[0],false);
+  assert.equal('contactMethod' in requests[0],false);
   assert.equal($('#successReference').textContent,'TEST-001');
   click('#successClose');
 
@@ -162,6 +167,7 @@ async function selectWithPointer(query,index=0) {
   requestStatus = 503; requestReply = {};
   click('#formSubmit'); await delay();
   assert.match($('#formError').textContent,/not active yet/);
+  assert.equal($('#formError a').href,'tel:+19292646070');
   assert.equal($('#formSubmit').disabled,false);
   requestStatus = 422; requestReply = {code:'address_unknown',error:'Choose and check your current street address again.'};
   click('#formSubmit'); await delay();

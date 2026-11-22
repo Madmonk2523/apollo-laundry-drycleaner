@@ -111,8 +111,15 @@
     $$('.invalid', form).forEach(el => el.classList.remove('invalid'));
     $$('[aria-invalid="true"]', form).forEach(el => el.removeAttribute('aria-invalid'));
   }
-  function showError(message, field) {
+  function showError(message, field, showCall = false) {
     formError.textContent = message;
+    if (showCall) {
+      const link = document.createElement('a');
+      link.href = 'tel:+19292646070';
+      link.textContent = '(929) 264-6070';
+      link.style.textDecoration = 'underline';
+      formError.append(' ', link, '.');
+    }
     formError.hidden = false;
     if (field) {
       field.classList.add('invalid');
@@ -131,7 +138,6 @@
       tab.setAttribute('aria-pressed', String(active));
     });
     $('#pickupServiceGroup').classList.toggle('hidden', !isPickup);
-    $('#pickupQuantityGroup').classList.toggle('hidden', !isPickup);
     $('#deliveryOrderGroup').classList.toggle('hidden', isPickup);
     $('#service').required = isPickup;
     $('#modalTitle').innerHTML = isPickup ? 'Request a <em>pickup.</em>' : 'Request a <em>delivery.</em>';
@@ -146,11 +152,10 @@
     const values = [
       ['Request', isPickup ? 'Pickup' : 'Delivery'],
       [isPickup ? 'Service' : 'Order', isPickup ? $('#service').value : ($('#orderNumber').value.trim() || 'Reference not provided')],
-      ...(isPickup && $('#quantity').value ? [['Amount', $('#quantity').value]] : []),
       ['Address', address],
       ['Preferred date', formatDate(dateField.value)],
       ['Time window', $('#timeWindow').selectedOptions[0]?.textContent || 'Not selected'],
-      ['Contact', $('#contactMethod').value || 'Not selected']
+      ['Follow-up email', $('#email').value.trim() || 'Not entered']
     ];
     const review = $('#requestSummary');
     review.replaceChildren();
@@ -444,7 +449,7 @@
     }
     if (!validateDetails()) return;
     const raw = Object.fromEntries(new FormData(form));
-    const fields = ['requestType','service','quantity','orderNumber','items','unit','requestedDate','timeWindow','firstName','lastName','email','phone','contactMethod','contactConsent','website'];
+    const fields = ['requestType','service','orderNumber','items','unit','requestedDate','timeWindow','firstName','lastName','email','phone','contactConsent','website'];
     const payload = Object.fromEntries(fields.map(field => [field, String(raw[field] || '').trim()]));
     Object.assign(payload, {addressId:verifiedAddress.id, address:verifiedAddress.street, city:verifiedAddress.city, zip:verifiedAddress.zip});
     sending = true;
@@ -466,9 +471,11 @@
           return;
         }
         const unavailable = response.status === 404 || response.status === 503;
-        throw new Error(unavailable
-          ? 'Online requests are not active yet. Please try again after Apollo has enabled the email service.'
-          : (result.error || 'The request could not be sent. Please try again.'));
+        if (unavailable) {
+          showError('Online requests are not active yet. To arrange your request, call Apollo at', undefined, true);
+          return;
+        }
+        throw new Error(result.error || 'The request could not be sent. Please try again.');
       }
       content.classList.add('hidden');
       success.classList.remove('hidden');
