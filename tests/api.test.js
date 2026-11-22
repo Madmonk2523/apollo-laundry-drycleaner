@@ -13,8 +13,8 @@ after(() => {
  for (const [key, value] of Object.entries(originalEnv)) value === undefined ? delete process.env[key] : process.env[key] = value;
 });
 const good = {
- requestType:'pickup', service:'Everyday laundry', quantity:'1 bag', items:'Please use the back entrance',
- orderNumber:'', address:'10 Example Lane', unit:'2A', city:'Sampletown', zip:'11747',
+ requestType:'pickup', service:'Laundry', quantity:'1 bag', items:'Please use the back entrance',
+ orderNumber:'', addressId:'1232477', address:'137 Franklin St', unit:'2A', city:'Brooklyn', zip:'11222',
  requestedDate:new Date(Date.now()+14*86400000).toISOString().slice(0,10), timeWindow:'Afternoon', firstName:'Jamie', lastName:'Example',
  email:'jamie@example.com',phone:'6315550199',contactMethod:'Email',contactConsent:'on',website:''
 };
@@ -32,10 +32,6 @@ test('validates missing contact info', async () => {
  const res = await invoke({...good,email:'bad'});
  assert.equal(res.statusCode,400);
  assert.match(res.body.error,/email/i);
-});
-test('validates ZIP', async () => {
- const res = await invoke({...good,zip:'xxx'});
- assert.equal(res.statusCode,400);
 });
 test('rejects pickup with unexpected service', async () => {
  const res = await invoke({...good,service:'Free unlimited cleaning'});
@@ -71,6 +67,7 @@ test('sends pickup email to owner and optional acknowledgment to customer', asyn
  assert.match(sent[1].html,/not a confirmed appointment yet/i);
  assert.match(sent[0].html,/1 bag/);
  assert.match(sent[0].html,/Preferred contact/);
+ assert.match(sent[0].html,/137 Franklin St, 2A, Brooklyn, NY 11222/);
 });
 test('delivery form accepts an optional order reference', async () => {
  const sent=[];
@@ -124,4 +121,19 @@ test('allows delivery with no order reference', async () => {
  assert.equal(res.statusCode,200);
  assert.equal(sent.length,1);
  assert.match(sent[0].html,/Not supplied/);
+});
+
+
+test('rejects missing, altered, or outside address before calling existing transport', async () => {
+ global.fetch = async () => assert.fail('Ineligible requests must not contact Resend');
+ for (const requestType of ['pickup','delivery']) {
+  for (const update of [{addressId:''},{address:'137 Other St'},{zip:'10013'},{city:'Manhattan'}]) {
+   const res = await invoke({...good,requestType,...update});
+   assert.equal(res.statusCode,422);
+   assert.equal(res.body.code,'address_unknown');
+  }
+  const outside = await invoke({...good,requestType,addressId:'1598365',address:'10 E 95 St',city:'Manhattan',zip:'10128'});
+  assert.equal(outside.statusCode,422);
+  assert.equal(outside.body.error,'You are too far from our location to do Pickup or Delivery.');
+ }
 });

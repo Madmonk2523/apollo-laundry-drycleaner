@@ -3,8 +3,9 @@
  * No customer or business data is logged, and no request is accepted without an email send.
  */
 const { randomBytes } = require('node:crypto');
+const { directory, OUTSIDE, UNAVAILABLE } = require('../lib/service-area');
 
-const ALLOWED_SERVICES = new Set(['Everyday laundry', 'Dry cleaning', 'Laundry and dry cleaning', 'Not sure yet']);
+const ALLOWED_SERVICES = new Set(['Laundry', 'Dry cleaning', 'Laundry and dry cleaning']);
 const ALLOWED_WINDOWS = new Set(['Morning', 'Afternoon', 'Evening', 'Flexible']);
 const ALLOWED_QUANTITIES = new Set(['', '1 bag', '2 bags', '3+ bags', 'Individual garments']);
 const CONTACT_METHODS = new Set(['Email', 'Phone call']);
@@ -26,6 +27,7 @@ function dataFrom(body) {
     quantity: getText(body.quantity, 40),
     orderNumber: getText(body.orderNumber, 80),
     items: getText(body.items, 1200),
+    addressId: getText(body.addressId, 20),
     address: getText(body.address, 180),
     unit: getText(body.unit, 60),
     city: getText(body.city, 90),
@@ -47,7 +49,6 @@ function validationError(d) {
   if (!['pickup','delivery'].includes(d.requestType)) return 'Choose pickup or delivery.';
   if (d.requestType === 'pickup' && !ALLOWED_SERVICES.has(d.service)) return 'Select a valid service.';
   if (d.requestType === 'pickup' && !ALLOWED_QUANTITIES.has(d.quantity)) return 'Select a valid laundry amount.';
-  if (!d.address || !d.city || !/^\d{5}(?:-\d{4})?$/.test(d.zip)) return 'Enter a valid street address, city, and ZIP code.';
   if (!isDate(d.requestedDate)) return 'Select a valid preferred date.';
   // Allow one day of time-zone overlap around midnight, but reject old or impractically distant dates.
   const today = new Date();
@@ -70,11 +71,11 @@ function emailMarkup(d, reference) {
     ...(d.requestType === 'pickup' ? [['Estimated amount', d.quantity || 'Not specified']] : []),
     ['Customer', `${d.firstName} ${d.lastName}`],
     ['Email', d.email],['Phone', d.phone],['Preferred contact', d.contactMethod],
-    ['Address', `${d.address}${d.unit ? ', ' + d.unit : ''}, ${d.city}, ${d.zip}`],
+    ['Address', `${d.address}${d.unit ? ', ' + d.unit : ''}, ${d.city}, NY ${d.zip}`],
     ['Preferred date', d.requestedDate],['Preferred window', d.timeWindow],
     ['Notes', d.items || 'None provided']
   ];
-  return `<div style="background:#edf5ff;padding:32px;font-family:Arial,sans-serif;color:#1a375c"><div style="max-width:650px;margin:auto;background:#fff;border-radius:18px;overflow:hidden"><div style="background:#2358ec;color:#fff;padding:28px 33px"><div style="letter-spacing:.17em;font-size:13px;font-weight:bold">✳ APOLLO LAUNDRY</div><h1 style="font-size:24px;margin:16px 0 5px">New ${escapeHtml(d.requestType)} request</h1><div style="font-size:13px;opacity:.85">Reference ${escapeHtml(reference)} · Not yet confirmed</div></div><div style="padding:24px 33px"><p style="font-size:14px;line-height:1.6">A customer has submitted a new request. Contact them to confirm availability, timing, and pricing before scheduling.</p><table style="width:100%;border-collapse:collapse">${rows.map(([label,value]) => `<tr><td style="font-size:12px;font-weight:bold;color:#60809c;padding:12px 8px 12px 0;border-bottom:1px solid #e6edf5;vertical-align:top;width:35%">${escapeHtml(label)}</td><td style="font-size:13px;line-height:1.5;padding:12px 0;border-bottom:1px solid #e6edf5;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`).join('')}</table><p style="font-size:11px;color:#8da0af;margin-top:24px">Sent by the Apollo website request form.</p></div></div></div>`;
+  return `<div style="background:#f4f4f4;padding:32px;font-family:Arial,sans-serif;color:#343434"><div style="max-width:650px;margin:auto;background:#fff;border-radius:18px;overflow:hidden"><div style="background:#575757;color:#fff;padding:28px 33px"><div style="letter-spacing:.17em;font-size:13px;font-weight:bold">✳ APOLLO LAUNDRY</div><h1 style="font-size:24px;margin:16px 0 5px">New ${escapeHtml(d.requestType)} request</h1><div style="font-size:13px;opacity:.85">Reference ${escapeHtml(reference)} · Not yet confirmed</div></div><div style="padding:24px 33px"><p style="font-size:14px;line-height:1.6">A customer has submitted a new request. Contact them to confirm availability, timing, and pricing before scheduling.</p><table style="width:100%;border-collapse:collapse">${rows.map(([label,value]) => `<tr><td style="font-size:12px;font-weight:bold;color:#7b7b7b;padding:12px 8px 12px 0;border-bottom:1px solid #ececec;vertical-align:top;width:35%">${escapeHtml(label)}</td><td style="font-size:13px;line-height:1.5;padding:12px 0;border-bottom:1px solid #ececec;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`).join('')}</table><p style="font-size:11px;color:#9d9d9d;margin-top:24px">Sent by the Apollo website request form.</p></div></div></div>`;
 }
 
 async function sendWithResend(key, from, to, subject, html, replyTo) {
@@ -110,12 +111,21 @@ module.exports = async function handler(req, res) {
   if (!key || !inbox || !sender || !isEmail(inbox) || !isEmail(sender.replace(/^.*?<([^>]+)>$/, '$1'))) {
     return res.status(503).json({success:false,error:'Online requests are not activated yet.'});
   }
+  let match;
+  try { match = directory().resolve(d.addressId); }
+  catch { return res.status(503).json({success:false,code:'address_unavailable',error:UNAVAILABLE}); }
+  if (!match || match.street !== d.address || match.city !== d.city || match.zip !== d.zip) {
+    return res.status(422).json({success:false,code:'address_unknown',error:'Choose and check your current street address again.'});
+  }
+  if (!match.eligible) return res.status(422).json({success:false,code:'address_outside',error:OUTSIDE});
+  // Use the trusted directory values rather than visitor-supplied street data.
+  Object.assign(d, {address:match.street,city:match.city,zip:match.zip});
   const reference = `AP-${randomBytes(4).toString('hex').toUpperCase()}`;
   try {
     await sendWithResend(key, sender, inbox, `[Apollo] New ${d.requestType} request · ${reference}`, emailMarkup(d, reference), d.email);
     // An optional acknowledgment, deliberately not a booking confirmation.
     if (process.env.APOLLO_SEND_CUSTOMER_CONFIRMATION === 'true') {
-      const html = `<div style="font-family:Arial,sans-serif;max-width:520px;color:#183953;line-height:1.7"><h2 style="color:#2359e5">Apollo received your request.</h2><p>Hi ${escapeHtml(d.firstName)},</p><p>Thanks for reaching out to Apollo Laundry Drycleaner. Your <b>${escapeHtml(d.requestType)}</b> request (${escapeHtml(reference)}) has been received.</p><p><b>Your request is not a confirmed appointment yet.</b> Our team will follow up to confirm the time, service area, and any pricing. Please do not leave laundry outside until the appointment is confirmed.</p><p>— Apollo Laundry Drycleaner</p></div>`;
+      const html = `<div style="font-family:Arial,sans-serif;max-width:520px;color:#343434;line-height:1.7"><h2 style="color:#585858">Apollo received your request.</h2><p>Hi ${escapeHtml(d.firstName)},</p><p>Thanks for reaching out to Apollo Laundry Drycleaner. Your <b>${escapeHtml(d.requestType)}</b> request (${escapeHtml(reference)}) has been received.</p><p><b>Your request is not a confirmed appointment yet.</b> Our team will follow up to confirm the time, service area, and any pricing. Please do not leave laundry outside until the appointment is confirmed.</p><p>— Apollo Laundry Drycleaner</p></div>`;
       try { await sendWithResend(key, sender, d.email, `Apollo request received · ${reference}`, html); } catch (_) { /* Owner email succeeded; customer acknowledgment is optional. */ }
     }
     return res.status(200).json({success:true, reference});

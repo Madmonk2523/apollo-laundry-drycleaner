@@ -20,5 +20,12 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/*.js": {
+      "includeFiles": "data/address-points.json.gz"
+    }
+  },
+  "buildCommand": "node scripts/build-static.js",
+  "outputDirectory": "dist"
 }

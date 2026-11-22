@@ -13,7 +13,8 @@ test('deprecated service wording is absent from public copy and code', () => {
 test('pickup form options match API supported values', () => {
   const html = read('index.html');
   const api = read('api/request.js');
-  for (const label of ['Everyday laundry', 'Dry cleaning','Laundry and dry cleaning','Not sure yet']) {
+  assert.doesNotMatch(html,/value="(?:Not sure yet|Everyday laundry)"/);
+  for (const label of ['Laundry', 'Dry cleaning','Laundry and dry cleaning']) {
     assert.ok(html.includes('value="' + label + '"'), 'missing form label: ' + label);
     assert.ok(api.includes("'" + label + "'"), 'missing server service: ' + label);
   }

@@ -1,33 +1,26 @@
-# Verification record
+# Apollo review checks
 
-10 November 2026.
+This branch was cut from the GitHub main commit deployed to Apollo’s existing production project (`b6224e6`). It does not change production. Tests use public building points and synthetic contact data, and never send an actual email.
 
-## Passed
-
-- `node --check app.js`
-- `node --test tests/*.test.js`: 22 tests.
-- `git diff --check`
-- HTML nesting and duplicate-ID checks.
-- Independent static review of responsive CSS and existing request code.
-- Simulated DOM interactions with jsdom: pickup success, delivery success without an order reference, validation/focus, Back, close/reopen reset, Escape, menu dismissal, live contact summary, and unavailable-email-service error with retry enabled.
-
-The DOM harness uses mocked network responses and test data. It does not send requests to Apollo or the email provider. It is not a real-browser layout test.
-
-To run it with an isolated development dependency:
+## Quick local run
 
 ```sh
-npm install --prefix /tmp/apollo-qa --cache /tmp/apollo-npm-cache --no-audit --no-fund jsdom
+node scripts/build-static.js
+node --test tests/*.test.js
+node qa/preview-server.cjs
+```
+
+Open **http://127.0.0.1:4173** to review on your computer. The local preview resolves real addresses from the included city directory, but Send request only returns **PREVIEW-ONLY**. It will not contact the shop or save what you enter. The site itself loads its existing map and fonts; this local server makes no outbound requests.
+
+Try **137 Franklin St, Brooklyn** for inside and **10 E 95th St, Manhattan** for outside. Keyboard: enter an address, use Up/Down then Enter to choose, and Check address to move to request details. Escape dismisses suggestions first, then the dialog.
+
+## Repeat the automated UI smoke test
+
+```sh
+npm install --prefix /tmp/apollo-qa --no-audit --no-fund jsdom
 NODE_PATH=/tmp/apollo-qa/node_modules node qa/dom-check.cjs
 ```
 
-## Not completed
+Passed with the actual local address handler and mocked request response: keyboard and pointer selection, apartment paste, outside vs unresolved and service failure, stale network replies, edit/back/reopen, submission and retry, menu and reviews. The API tests separately mock Resend to check address enforcement, the recipient payload and failure behavior.
 
-- Desktop browser review of the public production site completed November 10, 2026. Confirmed new review section and corrected an existing FAQ grid overflow. Mobile layout was statically reviewed but has not been visually tested at a mobile viewport. No protection settings were changed or wider-access preview links created.
-- Real email deliverability: requires the production email configuration and a separately authorized live test.
-- Google identity and review quotations verified November 10, 2026. Photo republication remains pending rights: see CONTENT-SOURCES.md.
-
-The initial refresh was promoted to production after explicit approval. Do not describe on-page photography as finished.
-
-## Original-design restoration, November 11, 2026
-
-Restored pre-redesign machine animation, rotating headline, ticker, illustrations and visual styling. Preserved verified details and three excerpts, removed rating and review count. 23 tests pass plus mocked DOM request checks. Production desktop screenshot confirmed original hero, and computed animations confirmed machineFloat (5s), drumRotate (12s), ticker (34s). Reduced-motion guards and mobile breakpoints checked by source tests; full mobile/reduced-motion browser emulation was unavailable in the browser API. Corrected pre-existing percentage-grid overflow while preserving visual layout.
+`qa/browser-check.cjs` is a Playwright script for touch/keyboard and overflow at 375, 390, 768 and 1440 pixels. It blocks all external resources. Run it with Playwright on your Node module path and `CHROMIUM_PATH` pointing to Chromium. The cloud executor blocked Chromium from creating its local UNIX-domain socket, so real browser layout and screenshots have **not** been verified in this run. No live Resend test, Vercel build, push or deployment was performed.

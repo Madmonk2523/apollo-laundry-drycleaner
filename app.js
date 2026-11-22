@@ -21,6 +21,18 @@
   let step = 0;
   let lastFocused = null;
   let sending = false;
+  const street = $('#address');
+  const options = $('#addressOptions');
+  const addressStatus = $('#addressStatus');
+  let addressChoice = null;
+  let verifiedAddress = null;
+  let addressController;
+  let addressTimer;
+  let addressEpoch = 0;
+  let activeOption = -1;
+  let matches = [];
+  const fullAddress = a => `${a.street}, ${a.city}, NY ${a.zip}`;
+  const unableToVerify = 'We couldn’t verify this address. Please try again or call Apollo at (929) 264-6070.';
 
   $('#year').textContent = String(new Date().getFullYear());
   // Manual review navigation: no autoplay, animation, or focus changes.
@@ -123,17 +135,14 @@
     $('#deliveryOrderGroup').classList.toggle('hidden', isPickup);
     $('#service').required = isPickup;
     $('#modalTitle').innerHTML = isPickup ? 'Request a <em>pickup.</em>' : 'Request a <em>delivery.</em>';
-    $('#modalSubtitle').textContent = isPickup
-      ? 'What would you like us to collect?'
-      : 'For an existing order already being cleaned by Apollo.';
-    $('.progress-label', backdrop).textContent = isPickup ? 'Service' : 'Order';
+    updateSubtitle();
     clearErrors();
   }
 
   function renderReview() {
     const requestType = typeField.value;
     const isPickup = requestType === 'pickup';
-    const address = [$('#address').value.trim(), $('#unit').value.trim(), $('#city').value.trim(), $('#zip').value.trim()].filter(Boolean).join(', ');
+    const address = verifiedAddress ? [verifiedAddress.street, $('#unit').value.trim(), verifiedAddress.city + ', NY ' + verifiedAddress.zip].filter(Boolean).join(', ') : '';
     const values = [
       ['Request', isPickup ? 'Pickup' : 'Delivery'],
       [isPickup ? 'Service' : 'Order', isPickup ? $('#service').value : ($('#orderNumber').value.trim() || 'Reference not provided')],
@@ -161,28 +170,39 @@
     title.setAttribute('tabindex', '-1');
     title.focus({preventScroll:true});
   }
+  function updateSubtitle() {
+    $('#modalSubtitle').textContent = step === 0 ? 'First, check whether your address is in our service area.'
+      : (typeField.value === 'pickup' ? 'Tell us what needs cleaning.' : 'For an existing order already being cleaned by Apollo.');
+  }
   function setStep(target, focusTitle = false) {
-    step = Math.min(2, Math.max(0, target));
+    step = target;
     $$('.form-step', form).forEach(el => el.classList.toggle('hidden', Number(el.dataset.step) !== step));
     $$('.progress-part', backdrop).forEach((el, index) => {
       el.classList.toggle('active', index === step);
       el.classList.toggle('complete', index < step);
-      $('span', el).textContent = String(index + 1);
+      if (index === step) el.setAttribute('aria-current', 'step');
+      else el.removeAttribute('aria-current');
     });
-    $('#stepStatus').textContent = `Step ${step+1} of 3: ${['Service or order','Address and time','Contact and review'][step]}`;
+    $('#stepStatus').textContent = `Step ${step+1} of 2: ${step === 0 ? 'Address' : 'Request details'}`;
     back.hidden = step === 0;
-    next.classList.toggle('hidden', step === 2);
-    submit.classList.toggle('hidden', step !== 2);
-    if (step === 2) renderReview();
+    back.textContent = 'Back to address';
+    next.classList.toggle('hidden', step === 1);
+    submit.classList.toggle('hidden', step !== 1);
+    if (step === 1) {
+      $('#verifiedAddress').textContent = 'In our service area: ' +
+        [verifiedAddress.street, $('#unit').value.trim(), verifiedAddress.city + ', NY ' + verifiedAddress.zip].filter(Boolean).join(', ');
+      renderReview();
+    }
+    updateSubtitle();
     clearErrors();
     dialog.scrollTo({top:0,behavior:'auto'});
     content.scrollTo({top:0,behavior:'auto'});
     if (focusTitle) focusStepTitle();
   }
 
-  function validateStep(number = step) {
-    const container = $(`.form-step[data-step="${number}"]`, form);
-    const fields = $$('input,select,textarea', container).filter(field => !field.closest('.hidden') && field.type !== 'hidden');
+  function validateDetails() {
+    const fields = $$('.form-step[data-step="1"] input, .form-step[data-step="1"] select, .form-step[data-step="1"] textarea', form)
+      .filter(field => !field.closest('.hidden'));
     for (const field of fields) {
       if (!field.checkValidity()) {
         const name = $('label[for="' + field.id + '"]')?.textContent?.replace(/\*|\([^)]*\)/g,'').trim().toLowerCase() || (field.name === 'contactConsent' ? 'consent to be contacted' : 'this field');
@@ -190,24 +210,176 @@
         return false;
       }
     }
-    if (number === 1) {
-      const zip = $('#zip');
-      if (!/^\d{5}(?:-\d{4})?$/.test(zip.value.trim())) { showError('Please use a valid five-digit ZIP code.', zip); return false; }
-      const date = dateField.value;
-      if (!date || date < dateField.min || date > dateField.max) { showError('Please choose a date within the next 180 days.', dateField); return false; }
+    if (!dateField.value || dateField.value < dateField.min || dateField.value > dateField.max) {
+      showError('Please choose a date within the next 180 days.', dateField); return false;
     }
-    if (number === 2) {
-      const phone = $('#phone');
-      if (phone.value.replace(/\D/g, '').length < 10) { showError('Please enter a valid phone number.', phone); return false; }
-    }
+    const phone = $('#phone');
+    if (phone.value.replace(/\D/g, '').length < 10) { showError('Please enter a valid phone number.', phone); return false; }
     clearErrors();
     return true;
   }
+
+  function closeOptions() {
+    matches = [];
+    activeOption = -1;
+    options.replaceChildren();
+    options.hidden = true;
+    street.setAttribute('aria-expanded', 'false');
+    street.removeAttribute('aria-activedescendant');
+  }
+  function cancelAddressWork() {
+    addressEpoch++;
+    clearTimeout(addressTimer);
+    addressController?.abort();
+    addressController = undefined;
+    next.disabled = false;
+    next.textContent = 'Check address';
+    closeOptions();
+  }
+  function resetAddress() {
+    cancelAddressWork();
+    addressChoice = null;
+    verifiedAddress = null;
+    addressStatus.textContent = '';
+  }
+  function setActive(index) {
+    activeOption = index;
+    Array.from(options.children).forEach((el, i) => el.setAttribute('aria-selected', String(i === index)));
+    const option = options.children[index];
+    if (option) {
+      street.setAttribute('aria-activedescendant', option.id);
+      option.scrollIntoView({block:'nearest'});
+    } else street.removeAttribute('aria-activedescendant');
+  }
+  function pickAddress(index) {
+    const selected = matches[index];
+    if (!selected) return;
+    cancelAddressWork();
+    addressChoice = selected;
+    verifiedAddress = null;
+    const unit = $('#unit');
+    const pastedUnit = /(?:#\s*|\b(?:APT|APARTMENT|UNIT|SUITE|FL)\.?\s+)([A-Z0-9][A-Z0-9-]{0,15})(?=[,\s]|$)/i.exec(street.value)?.[1];
+    if (!unit.value.trim() && pastedUnit) unit.value = pastedUnit;
+    street.value = fullAddress(selected);
+    addressStatus.textContent = 'Address selected. Choose Check address to continue.';
+    clearErrors();
+    street.focus({preventScroll:true});
+  }
+  async function addressFetch(payload, controller) {
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch('/api/address', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:controller.signal
+      });
+      const data = await response.json().catch(() => ({}));
+      return {response,data};
+    } finally { clearTimeout(timeout); }
+  }
+  async function searchAddresses(query, fromButton = false) {
+    cancelAddressWork();
+    const epoch = addressEpoch;
+    const controller = addressController = new AbortController();
+    addressStatus.textContent = 'Finding addresses…';
+    try {
+      const {response,data} = await addressFetch({query},controller);
+      if (epoch !== addressEpoch || step !== 0 || street.value.trim() !== query || !backdrop.classList.contains('open')) return;
+      if (!response.ok || !Array.isArray(data.suggestions)) throw new Error(unableToVerify);
+      matches = data.suggestions.filter(a => a && typeof a.id === 'string' && a.street && a.city && a.zip).slice(0,7);
+      if (!matches.length) {
+        addressStatus.textContent = 'No matching address. Check the house number and street, or call Apollo.';
+        return;
+      }
+      matches.forEach((match,index) => {
+        const item = document.createElement('li');
+        item.id = `address-option-${index}`;
+        item.setAttribute('role','option');
+        item.setAttribute('aria-selected','false');
+        item.textContent = fullAddress(match);
+        item.addEventListener('mousedown', event => event.preventDefault());
+        item.addEventListener('click', () => pickAddress(index));
+        options.append(item);
+      });
+      options.hidden = false;
+      street.setAttribute('aria-expanded','true');
+      addressStatus.textContent = `${matches.length} address ${matches.length === 1 ? 'match' : 'matches'}. Choose your exact address.`;
+      if (fromButton) street.focus({preventScroll:true});
+    } catch {
+      if (epoch === addressEpoch) addressStatus.textContent = unableToVerify;
+    }
+  }
+  async function checkAddress() {
+    if (next.disabled) return;
+    clearErrors();
+    const query = street.value.trim();
+    if (!query) { showError('Enter your street address first.', street); return; }
+    if (!addressChoice || query !== fullAddress(addressChoice)) {
+      if (matches.length && !options.hidden) {
+        street.focus({preventScroll:true});
+        if (activeOption === -1) setActive(0);
+        return;
+      }
+      await searchAddresses(query, true);
+      return;
+    }
+    cancelAddressWork();
+    const epoch = addressEpoch;
+    const choice = addressChoice;
+    const controller = addressController = new AbortController();
+    next.disabled = true;
+    next.textContent = 'Checking address…';
+    try {
+      const {response,data} = await addressFetch({id:choice.id}, controller);
+      if (epoch !== addressEpoch || !backdrop.classList.contains('open') || street.value !== fullAddress(choice)) return;
+      if (!response.ok || data.address?.eligible !== true) {
+        showError(data.code === 'address_outside' && data.error ? data.error : unableToVerify);
+        return;
+      }
+      if (data.address.id !== choice.id || fullAddress(data.address) !== fullAddress(choice)) {
+        resetAddress();
+        showError('This address changed during verification. Please choose it again.',street);
+        return;
+      }
+      verifiedAddress = data.address;
+      addressStatus.textContent = '';
+      setStep(1,true);
+    } catch {
+      if (epoch === addressEpoch) showError(unableToVerify);
+    } finally {
+      if (epoch === addressEpoch) {
+        next.disabled = false;
+        next.textContent = 'Check address';
+      }
+    }
+  }
+  street.addEventListener('input', () => {
+    resetAddress();
+    const query = street.value.trim();
+    if (query.length >= 5 && /^\d/.test(query)) addressTimer = setTimeout(() => searchAddresses(query), 260);
+  });
+  street.addEventListener('keydown', event => {
+    if (!options.hidden && ['ArrowDown','ArrowUp','Escape','Enter'].includes(event.key)) {
+      if (event.key === 'Enter' && activeOption < 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.key === 'Escape') closeOptions();
+      else if (event.key === 'Enter') pickAddress(activeOption);
+      else if (activeOption < 0) setActive(event.key === 'ArrowDown' ? 0 : matches.length-1);
+      else setActive((activeOption + (event.key === 'ArrowDown' ? 1 : -1) + matches.length) % matches.length);
+    }
+    if (event.key === 'Tab' && !next.disabled) cancelAddressWork();
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!event.target.closest('.address-search') && !event.target.closest('#formNext') && !options.hidden) closeOptions();
+  });
+  street.addEventListener('blur', event => {
+    if (!next.disabled && event.relatedTarget && event.relatedTarget !== next && !options.contains(event.relatedTarget)) cancelAddressWork();
+  });
 
   function openRequest(type, service) {
     if (sending) return;
     lastFocused = document.activeElement;
     form.reset();
+    resetAddress();
     syncDateLimits();
     content.classList.remove('hidden');
     success.classList.add('hidden');
@@ -222,6 +394,7 @@
   }
   function closeRequest() {
     if (sending) return;
+    resetAddress();
     backdrop.classList.remove('open');
     backdrop.setAttribute('aria-hidden','true');
     document.body.classList.remove('modal-open');
@@ -244,19 +417,19 @@
     else if (!event.shiftKey && document.activeElement === focusable.at(-1)) { event.preventDefault(); focusable[0].focus(); }
   });
 
-  next.addEventListener('click', () => { if (validateStep()) setStep(step + 1, true); });
-  back.addEventListener('click', () => setStep(step - 1, true));
+  next.addEventListener('click', checkAddress);
+  back.addEventListener('click', () => setStep(0, true));
   form.addEventListener('keydown', event => {
-    if (event.key === 'Enter' && step < 2 && event.target.matches('input:not([type="checkbox"]), select')) {
+    if (event.key === 'Enter' && step === 0 && event.target.matches('input:not([type="checkbox"])')) {
       event.preventDefault();
-      if (validateStep()) setStep(step + 1, true);
+      checkAddress();
     }
   });
   $$('input,select,textarea', form).forEach(input => {
     input.addEventListener('input', () => { if (!formError.hidden) clearErrors(); });
     input.addEventListener('change', () => {
       if (!formError.hidden) clearErrors();
-      if (step === 2) renderReview();
+      if (step === 1) renderReview();
     });
   });
 
@@ -264,15 +437,16 @@
     event.preventDefault();
     if (sending) return;
     syncDateLimits();
-    // Validate all steps again so Enter / scripted submit can't skip steps.
-    for (const index of [0,1,2]) {
-      if (index !== step) setStep(index);
-      if (!validateStep(index)) return;
+    if (step !== 1 || !verifiedAddress || street.value !== fullAddress(verifiedAddress)) {
+      setStep(0);
+      showError('Choose and check your street address first.',street);
+      return;
     }
-    setStep(2);
+    if (!validateDetails()) return;
     const raw = Object.fromEntries(new FormData(form));
-    const fields = ['requestType','service','quantity','orderNumber','items','address','unit','city','zip','requestedDate','timeWindow','firstName','lastName','email','phone','contactMethod','contactConsent','website'];
+    const fields = ['requestType','service','quantity','orderNumber','items','unit','requestedDate','timeWindow','firstName','lastName','email','phone','contactMethod','contactConsent','website'];
     const payload = Object.fromEntries(fields.map(field => [field, String(raw[field] || '').trim()]));
+    Object.assign(payload, {addressId:verifiedAddress.id, address:verifiedAddress.street, city:verifiedAddress.city, zip:verifiedAddress.zip});
     sending = true;
     submit.disabled = true;
     submit.textContent = 'Sending request…';
@@ -285,6 +459,12 @@
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.success) {
+        if (String(result.code).startsWith('address_')) {
+          resetAddress();
+          setStep(0);
+          showError(result.error || unableToVerify,street);
+          return;
+        }
         const unavailable = response.status === 404 || response.status === 503;
         throw new Error(unavailable
           ? 'Online requests are not active yet. Please try again after Apollo has enabled the email service.'
