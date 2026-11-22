@@ -42,3 +42,11 @@ test('request form asks for required email and phone without retired questions',
  assert.ok(details.indexOf('tel:+19292646070') < details.indexOf('id="firstName"'));
  assert.match(details, /follow up by email/);
 });
+
+test('the published page and client present address eligibility without distance details', () => {
+ for (const filename of ['index.html','app.js']) {
+  assert.doesNotMatch(read(filename), /\b3[ -]mile|straight[ -]line|how far|too far|distance calculations|location tracking/i);
+ }
+ assert.match(read('index.html'), /Choose a matching street address to check availability\./);
+ assert.match(read('index.html'), /call \(929\) 264-6070/i);
+});

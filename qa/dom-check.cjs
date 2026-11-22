@@ -106,7 +106,7 @@ async function selectWithPointer(query,index=0) {
   assert.equal($('#service').required,false);
   await selectWithPointer('10 E 95th St, Manhattan');
   assert.equal(currentStep(),0);
-  assert.equal($('#formError').textContent,'You are too far from our location to do Pickup or Delivery.');
+  assert.equal($('#formError').textContent,"Pickup and delivery aren’t available at this address.");
   assert.equal(requests.length,1);
   await typedSearch('9999999 Phony Street');
   assert.match($('#addressStatus').textContent,/No matching address/);
@@ -125,7 +125,7 @@ async function selectWithPointer(query,index=0) {
   assert.equal(currentStep(),0);
   assert.equal(requests.length,1);
   key('#address','Enter'); click('#formNext'); await delay();
-  assert.match($('#formError').textContent,/too far/);
+  assert.match($('#formError').textContent,/Pickup and delivery aren’t available at this address\./);
   await selectWithPointer('100 Broadway, Brooklyn');
   assert.equal(currentStep(),1);
   assert.equal($('#firstName').value,'Test');

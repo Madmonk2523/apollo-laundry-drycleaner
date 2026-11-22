@@ -148,6 +148,6 @@ test('rejects missing, altered, or outside address before calling existing trans
   }
   const outside = await invoke({...good,requestType,addressId:'1598365',address:'10 E 95 St',city:'Manhattan',zip:'10128'});
   assert.equal(outside.statusCode,422);
-  assert.equal(outside.body.error,'You are too far from our location to do Pickup or Delivery.');
+  assert.equal(outside.body.error,"Pickup and delivery aren’t available at this address.");
  }
 });

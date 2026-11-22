@@ -54,7 +54,7 @@ async function run() {
       await page.getByRole('button',{name:'Check address'}).click();
       const error = page.getByRole('alert');
       await error.waitFor({state:'visible'});
-      assert.match(await error.innerText(),/too far from our location/);
+      assert.match(await error.innerText(),/Pickup and delivery aren’t available at this address\./);
       assert.equal(outsideCode,422);
       await address.fill('137 Franklin Street Apt 5, Brooklyn NY 11222');
       const allowed = page.getByRole('option',{name:/137 Franklin St, Brooklyn/});
