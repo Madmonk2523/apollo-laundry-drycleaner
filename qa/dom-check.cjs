@@ -178,13 +178,8 @@ async function selectWithPointer(query,index=0) {
 
   click('#menuToggle'); assert.equal($('#menuToggle').getAttribute('aria-expanded'),'true');
   click('#navLinks a'); assert.equal($('#menuToggle').getAttribute('aria-expanded'),'false');
-  const slides = [...d.querySelectorAll('.review-slide')];
-  assert.equal(slides.length,5);
-  assert.equal(slides[0].hidden,false);
-  click('#reviewNext'); assert.equal(slides[1].hidden,false);
-  for(let i=0;i<4;i++) click('#reviewNext');
-  assert.equal(slides[0].hidden,false);
-  click('#reviewPrevious'); assert.equal(slides[4].hidden,false);
+  assert.match($('.google-rating').textContent,/4\.8 out of 5/);
+  assert.match($('.google-review-links a').href,/query_place_id=ChIJeR9JFABZwokRPAYUQ04H4ao/);
   console.log('PASS: keyboard/pointer address selection, Escape dismissal, unit paste, outside/unknown/down, stale replies, back/edit/reopen, pickup/delivery, server rejection, retry, menu and reviews. Existing email transport mocked.');
   w.close();
 })().catch(error => { console.error(error); w.close(); process.exitCode = 1; });

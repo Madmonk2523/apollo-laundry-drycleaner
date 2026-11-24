@@ -46,3 +46,9 @@ Replaced the three excerpts with two short complete reviews, preserving all word
 ## Approved full-review expansion, November 11, 2026
 
 Following explicit confirmation that reviewer reuse was approved, added Christy Illius, Kamil Pruszko and Allan Sachs-Ambia to the existing Madeline Landon and Albert Diaz reviews. All five complete texts were rechecked directly in the Google review dialog. Allan's Read more control was expanded before copying. Five-star ratings were verified visually for Allan, Kamil, Christy and Albert; Madeline's rating was explicitly labeled five out of five in the Google knowledge panel. Selected reviews are labeled as such and link to the full listing. No aggregate rating is shown. The historic cafe comment disclaimer remains.
+
+## Google profile and price update, November 24, 2026
+
+Apollo's Google place ID (ChIJeR9JFABZwokRPAYUQ04H4ao) matches the exact street address and phone above. On November 24 the location lookup returned 4.8 out of 5 from 12 reviews; the public display is a snapshot, not an automatically refreshed feed. Use the links to see the current reviews. No review data is represented in the site's business structured data. The selected excerpt is a complete sentence from the previously approved Allan Sachs-Ambia quotation.
+
+Nico confirmed $1.50 per pound for regular laundry. Pickup/delivery minimum wording awaits confirmation; no free-service promise or separate surcharge is advertised. No insurance or loss-policy claim was added. The request still uses the existing contact fields, email follow-up and transport.

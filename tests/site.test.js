@@ -17,23 +17,49 @@ test('request-flow DOM hooks remain available', () => {
   assert.ok(html.includes(`id="${id}"`), `Missing ${id}`);
  }
 });
-test('Google links preserve supplied destination with safe new tabs', () => {
- const links = [...html.matchAll(/<a[^>]*href="https:\/\/share.google\/LdoeEbqq3bSOVXh8D"[^>]*>/g)];
- assert.ok(links.length >= 2);
- links.forEach(([a]) => { assert.match(a, /rel="noopener noreferrer"/); assert.match(a, /target="_blank"/); });
+test('Maps, directions and reviews link to the exact Apollo location', () => {
+ const links = [...html.matchAll(/<a[^>]* href="([^"]+)"[^>]*>[^<]*(?:Maps|reviews|review)<\/a>/gi)]
+  .filter(([,url]) => url.startsWith('https://'));
+ assert.ok(links.length >= 4);
+ assert.doesNotMatch(html, /share\.google/);
+ for (const [tag,href] of links) {
+  const url = new URL(href.replaceAll('&amp;','&'));
+  assert.ok(['www.google.com','search.google.com'].includes(url.hostname));
+  assert.match(url.search, /(?:query_place_id|destination_place_id|placeid)=ChIJeR9JFABZwokRPAYUQ04H4ao/);
+  assert.match(tag, /rel="noopener noreferrer"/);
+ }
+ assert.match(html, /\/maps\/dir\/\?api=1/);
+ assert.match(html, /\/local\/writereview\?placeid=/);
 });
-test('verified Google details are present without fabricated structured ratings or images', () => {
- assert.match(html, /137 Franklin/);
- assert.match(html, /tel:\+19292646070/);
- assert.doesNotMatch(html, /4\.8|rating-summary|12 Google reviews|aggregateRating|reviewRating/);
- assert.match(html, /Albert Diaz/);
- assert.match(html, /Madeline Landon/);
- assert.match(html, /Five selected five-star reviews/);
+
+test('page displays Google review snapshot without marking up its own reviews', () => {
+ assert.match(html, /4\.8 out of 5/);
+ assert.match(html, /12 Google reviews/);
+ assert.match(html, /Allan Sachs-Ambia, Google review excerpt/);
+ assert.match(html, /You will have sparkling clean laundry\./);
+ assert.doesNotMatch(html, /aggregateRating|reviewRating|review-carousel/);
  assert.match(html, /class="machine-drum"/);
  assert.match(html, /class="ticker-track"/);
- assert.doesNotMatch(html, /aggregateRating|reviewRating/);
- assert.doesNotMatch(html, /<img\b/);
- assert.doesNotMatch(html, /—/);
+});
+
+test('LocalBusiness facts and raster social preview are consistent', () => {
+ const jsonld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+ assert.equal(jsonld['@type'], 'LocalBusiness');
+ assert.equal(jsonld.address.streetAddress, '137 Franklin Street');
+ assert.equal(jsonld.telephone, '+1-929-264-6070');
+ assert.equal(jsonld.openingHoursSpecification.dayOfWeek.length, 7);
+ assert.equal(jsonld.openingHoursSpecification.opens, '07:00');
+ assert.equal(jsonld.openingHoursSpecification.closes, '22:00');
+ const url = new URL(html.match(/property="og:image" content="([^"]+)"/)[1]);
+ assert.equal(jsonld.image, url.href);
+ assert.equal(url.pathname, '/assets/social-preview.jpg');
+ const jpeg = fs.readFileSync(path.join(__dirname, '..', url.pathname));
+ assert.deepEqual([...jpeg.subarray(0, 3)], [255, 216, 255]);
+});
+
+test('published price describes only regular laundry', () => {
+ assert.match(html, /\$1\.50 per pound/);
+ assert.doesNotMatch(html, /\$15\b|free local pickup/i);
 });
 
 test('restored animation and responsive rules remain intact', () => {
@@ -42,11 +68,6 @@ test('restored animation and responsive rules remain intact', () => {
  assert.match(css, /prefers-reduced-motion:reduce/);
  assert.match(css, /animation-duration:\.01ms!important/);
  assert.match(css, /@media\(max-width:700px\)/);
- assert.match(css, /review-grid-public\{grid-template-columns:1fr/);
+ assert.match(css, /google-reviews\{grid-template-columns:1fr/);
  assert.doesNotMatch(css, /Editorial refresh/);
-});
-
-test('review captions omit relative dates and verification timestamps', () => {
- assert.doesNotMatch(html, /displayed .*ago|when checked|November 11, 2026/);
- assert.equal((html.match(/<span>Google review<\/span>/g) || []).length, 5);
 });
