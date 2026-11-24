@@ -57,9 +57,11 @@ test('LocalBusiness facts and raster social preview are consistent', () => {
  assert.deepEqual([...jpeg.subarray(0, 3)], [255, 216, 255]);
 });
 
-test('published price describes only regular laundry', () => {
+test('published pricing distinguishes the laundry rate and pickup or delivery minimum', () => {
  assert.match(html, /\$1\.50 per pound/);
- assert.doesNotMatch(html, /\$15\b|free local pickup/i);
+ assert.equal((html.match(/\$15 minimum order for pickup or delivery\./g) || []).length, 2);
+ assert.match(html, /Pickup and delivery have a \$15 order minimum/);
+ assert.doesNotMatch(html, /free local pickup|\$15 (?:service )?fee/i);
 });
 
 test('restored animation and responsive rules remain intact', () => {

@@ -51,4 +51,4 @@ Following explicit confirmation that reviewer reuse was approved, added Christy 
 
 Apollo's Google place ID (ChIJeR9JFABZwokRPAYUQ04H4ao) matches the exact street address and phone above. On November 24 the location lookup returned 4.8 out of 5 from 12 reviews; the public display is a snapshot, not an automatically refreshed feed. Use the links to see the current reviews. No review data is represented in the site's business structured data. The selected excerpt is a complete sentence from the previously approved Allan Sachs-Ambia quotation.
 
-Nico confirmed $1.50 per pound for regular laundry. Pickup/delivery minimum wording awaits confirmation; no free-service promise or separate surcharge is advertised. No insurance or loss-policy claim was added. The request still uses the existing contact fields, email follow-up and transport.
+Nico confirmed $1.50 per pound for regular laundry. Chase clarified that Nico’s $15 is the minimum order for pickup or delivery, not a separate fee. No insurance or loss-policy claim was added. The request still uses the existing contact fields, email follow-up and transport.
