@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="17" fill="#585858"/><circle cx="32" cy="32" r="21" stroke="#fff" stroke-width="4" fill="none"/><circle cx="32" cy="32" r="11" stroke="#fff" stroke-width="4" fill="none"/><circle cx="32" cy="11" r="3" fill="#fff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="steel" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#fff"/>
+      <stop offset=".52" stop-color="#c7c7c7"/>
+      <stop offset="1" stop-color="#8e8e8e"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#101010" stroke="#414141" stroke-width="2"/>
+  <circle cx="32" cy="32" r="21" fill="#272727" stroke="url(#steel)" stroke-width="5"/>
+  <circle cx="32" cy="32" r="14" fill="#131313" stroke="#f3f3f3" stroke-width="2"/>
+  <path d="M23 32a9 9 0 0 1 9-9" stroke="#b9b9b9" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <circle cx="49" cy="14" r="3.1" fill="#fff"/>
+</svg>
